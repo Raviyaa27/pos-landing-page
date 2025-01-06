@@ -5,6 +5,7 @@ import app from "../../config";
 import Dashboard from "../dashboard/page";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 // function page() {
 const SignInPage = () => {
@@ -40,16 +41,14 @@ const SignInPage = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
+    <div className="flex justify-center gap-8">
       {user ? (
         //user is logged in, render dashboard or redirect to the dashboard
         <Dashboard />
       ) : (
         //user is not logged in , render the login button
-        <button
-          onClick={signInWithGoogle}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        >
+        <button onClick={signInWithGoogle} className="p-6 flex gap-4">
+          <Image src="/google.png" width={30} height={30} alt="google" />
           Sign In With Google
         </button>
       )}
@@ -58,3 +57,10 @@ const SignInPage = () => {
 };
 
 export default SignInPage;
+
+{
+  /* <button className="p-6 flex gap-4">
+              <Image src="/google.png" width={30} height={30} alt="google" />
+              Sign up with Google
+            </button> */
+}

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import Image from "next/image";
+import SignInPage from "../Signin/page";
 
 function Hero() {
   return (
@@ -44,10 +45,11 @@ function Hero() {
         <div className="flex gap-4 flex-col mt-5">
           <h3 className="text-sm">Sign Up free with Google and Facebook</h3>
           <div className="flex justify-center gap-8">
-            <button className="p-6 flex gap-4">
+            {/* <button className="p-6 flex gap-4">
               <Image src="/google.png" width={30} height={30} alt="google" />
               Sign up with Google
-            </button>
+            </button> */}
+            <SignInPage />
             <button className="p-6 flex gap-4">
               <Image
                 src="/facebook.png"
