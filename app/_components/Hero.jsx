@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 import Image from "next/image";
-import SignInPage from "../Signin/page";
+import SignInPage from "../signInGoogle/page";
 
 function Hero() {
   return (
