@@ -7,66 +7,89 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Facebook, Mail } from "lucide-react";
 import Link from "next/link";
-import { useCreateUserWithEmailAndPassword} from 'react-firebase-hooks/auth';
-import {auth} from "../../../config";
+import { useFirebaseAuth } from "../../hooks/useFirebaseAuth"
+import {
+  validateEmail,
+  validatePassword,
+  validateUsername,
+} from "../../utils/validation"; 
 
 
-const SignUpPage=()=> {
+const SignUpPage = () => {
+
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  // const [useCreateUserWithEmailAndPassword,]=useCreateUserWithEmailAndPassword(auth);
-  const [createUserWithEmailAndPassword, user, loading, error] =
-    useCreateUserWithEmailAndPassword(auth);
+  const [successMessage, setSuccessMessage] = useState(""); 
 
-  // const handleSignUpWithEmailPassword=async()=>{
-  //   try {
-  //     const res=await useCreateUserWithEmailAndPassword(email,password);
-  //     console.log({res});
-  //     setEmail("");
-  //     setUsername("");
-  //     setPassword("");
-  //     setConfirmPassword("");
-  //   }
+  // Error handling
+  const [formError, setFormError] = useState({}); 
 
-  //   } catch (e) {
-  //     console.error(e);
-
-  //   }
-  // };
+  // Firebase auth hook
+  const { signUp, loading, error: firebaseError } = useFirebaseAuth();
 
 const handleSignUpWithEmailPassword = async (e) => {
   e.preventDefault();
 
-  if (password !== confirmPassword) {
-    console.error("Passwords do not match");
+  // Validate inputs
+  const errors = {};
+  if (!validateEmail(email)) errors.email = "Invalid email address.";
+  if (!validateUsername(username))
+    errors.username = "Username must be at least 3 characters.";
+  if (!validatePassword(password))
+    errors.password = "Password must be at least 6 characters.";
+  if (password !== confirmPassword)
+    errors.confirmPassword = "Passwords do not match.";
+
+  if (Object.keys(errors).length > 0) {
+    setFormError(errors); // Display errors if found
     return;
   }
 
-   if (!email || password.length < 6) {
-     console.error("Invalid email or password length");
-     return;
-   }
-
-
   try {
-    await createUserWithEmailAndPassword(email, password);
-    console.log( "User created successfully:", user);
-    // Optionally add username to Firestore or Realtime Database here
+    // Attempt to sign up user
+    await signUp(email, password);
+
+    // Only if the sign-up is successful, show success message
+    console.log("User created successfully!");
     setEmail("");
     setUsername("");
     setPassword("");
     setConfirmPassword("");
+    setFormError({}); 
+
+    setSuccessMessage("User created successfully! Please log in.");
   } catch (e) {
-    console.error("Error creating user:", e);
+    console.error(e);
+
+    // Handle specific Firebase error for email already in use
+    if (e.code === "auth/email-already-in-use") {
+      setFormError({
+        general: "The email address is already in use by another account.",
+      });
+    } else if (e.code === "auth/invalid-email") {
+      setFormError({
+        general: "The email address is not valid.",
+      });
+    } else if (e.code === "auth/weak-password") {
+      setFormError({
+        general: "The password is too weak. Please use at least 6 characters.",
+      });
+    } else {
+      // Handle other unexpected errors
+      setFormError({
+        general: e.message || "An unexpected error occurred.",
+      });
+    }
   }
 };
 
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to primary-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -79,6 +102,19 @@ const handleSignUpWithEmailPassword = async (e) => {
             <p className="text-muted-foreground">Create an account</p>
           </div>
 
+          {/* Success message */}
+          {successMessage && (
+            <p className="text-green-500 text-sm text-center">
+              {successMessage}
+            </p>
+          )}
+
+          {/* Error messages */}
+          {formError.general && (
+            <p className="text-red-500 text-sm text-center">
+              {formError.general}
+            </p>
+          )}
 
           <form className="space-y-4" onSubmit={handleSignUpWithEmailPassword}>
             <div className="space-y-2">
@@ -91,6 +127,9 @@ const handleSignUpWithEmailPassword = async (e) => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
+              {formError.email && (
+                <p className="text-red-500 text-xs">{formError.email}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -103,6 +142,9 @@ const handleSignUpWithEmailPassword = async (e) => {
                 onChange={(e) => setUsername(e.target.value)}
                 required
               />
+              {formError.username && (
+                <p className="text-red-500 text-xs">{formError.username}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -124,6 +166,9 @@ const handleSignUpWithEmailPassword = async (e) => {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
+              {formError.password && (
+                <p className="text-red-500 text-xs">{formError.password}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -149,14 +194,20 @@ const handleSignUpWithEmailPassword = async (e) => {
                   )}
                 </button>
               </div>
+              {formError.confirmPassword && (
+                <p className="text-red-500 text-xs">
+                  {formError.confirmPassword}
+                </p>
+              )}
             </div>
 
             <Button
               type="submit"
               variant="default"
               className="w-full"
+              disabled={loading}
             >
-              Sign Up
+              {loading ? "Signing Up..." : "Sign Up"}
             </Button>
           </form>
           <div className="relative">
@@ -191,7 +242,6 @@ const handleSignUpWithEmailPassword = async (e) => {
       </motion.div>
     </div>
   );
-}
-
+};
 
 export default SignUpPage;
