@@ -49,7 +49,7 @@ const SignInPage = () => {
         //user is not logged in , render the login button
         <button onClick={signInWithGoogle} className="p-6 flex gap-4">
           <Image src="/google.png" width={30} height={30} alt="google" />
-          Sign In With Google
+          Sign up with Google
         </button>
       )}
     </div>

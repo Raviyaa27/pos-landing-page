@@ -45,24 +45,29 @@ function Hero() {
         <div className="flex gap-4 flex-col mt-5">
           <h3 className="text-sm">Sign Up free with Google and Facebook</h3>
           <div className="flex justify-center gap-8">
-            {/* <button className="p-6 flex gap-4">
-              <Image src="/google.png" width={30} height={30} alt="google" />
-              Sign up with Google
-            </button> */}
-            <SignInPage />
+            <Link href="/auth/signup" className="flex items-center gap-2">
+              <button className="p-6 flex gap-4">
+                <Image src="/google.png" width={30} height={30} alt="google" />
+                Sign up with Google
+              </button>
+            </Link>
+
+            {/* <SignInPage /> */}
             <button className="p-6 flex gap-4">
-              <Image
-                src="/facebook.png"
-                width={30}
-                height={30}
-                alt="facebook"
-              />
-              Sign up with Facebook
+              <Link href="/auth/signup" className="flex items-center gap-2">
+                <Image
+                  src="/facebook.png"
+                  width={30}
+                  height={30}
+                  alt="facebook"
+                />
+                Sign up with Facebook
+              </Link>
             </button>
           </div>
           <hr></hr>
           <h2>
-            <Link href="" className="text-primary">
+            <Link href="/auth/signup" className="text-primary">
               <u>
                 <b>Sign up with Email. </b>
               </u>{" "}

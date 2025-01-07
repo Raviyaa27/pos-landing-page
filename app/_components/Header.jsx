@@ -4,6 +4,7 @@ import { Button } from "../../components/ui/button";
 //import { LoginLink, RegisterLink } from '@kinde-oss/kinde-auth-nextjs'
 import Image from "next/image";
 import React from "react";
+import Link from "next/link";
 
 function Header() {
   return (
@@ -35,8 +36,12 @@ function Header() {
           </li>
         </ul>
         <div className="flex gap-5 pr-5">
-          <Button variant="ghost">Login</Button>
-          <Button>Get Started</Button>
+          <Link href="/auth/login" passHref>
+            <Button variant="ghost">Login</Button>
+          </Link>
+          <Link href="/auth/signup" passHref>
+            <Button>Get Started</Button>
+          </Link>
         </div>
       </div>
     </div>
@@ -44,3 +49,5 @@ function Header() {
 }
 
 export default Header;
+
+
