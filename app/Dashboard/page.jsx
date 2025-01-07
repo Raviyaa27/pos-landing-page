@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import app from "../../config.js";
+import {app} from "../../config.js";
 
-function Dashboard() {
+function dashboard() {
   const auth = getAuth(app);
   const router = useRouter();
   const [user, setUser] = useState(null);
@@ -53,6 +53,6 @@ function Dashboard() {
   );
 }
 
-export default Dashboard;
+export default dashboard;
 
 

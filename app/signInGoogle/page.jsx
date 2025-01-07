@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import app from "../../config";
-import Dashboard from "../dashboard/page";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import {app,auth} from "../../config";
+import dashboard from "../dashboard/page";
+import {  signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -14,7 +14,6 @@ const SignInPage = () => {
 
   useEffect(() => {
     console.log("Starting auth onAuthStateChanged observer");
-    const auth = getAuth(app);
     const unsubscribe = auth.onAuthStateChanged((user) => {
       console.log("Auth state changed:", user);
       if (user) {
@@ -29,12 +28,11 @@ const SignInPage = () => {
 
   const signInWithGoogle = async () => {
     console.log("Attempting to sign in with Google");
-    const auth = getAuth(app);
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
       console.log("Sign in successful");
-      router.push("/Dashboard");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Error signing in with Google:", error.message);
     }
@@ -44,7 +42,7 @@ const SignInPage = () => {
     <div className="flex justify-center gap-8">
       {user ? (
         //user is logged in, render dashboard or redirect to the dashboard
-        <Dashboard />
+        <dashboard />
       ) : (
         //user is not logged in , render the login button
         <button onClick={signInWithGoogle} className="p-6 flex gap-4">

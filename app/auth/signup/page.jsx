@@ -7,14 +7,63 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Facebook, Mail } from "lucide-react";
 import Link from "next/link";
+import { useCreateUserWithEmailAndPassword} from 'react-firebase-hooks/auth';
+import {auth} from "../../../config";
 
-export default function SignUpPage() {
+
+const SignUpPage=()=> {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  // const [useCreateUserWithEmailAndPassword,]=useCreateUserWithEmailAndPassword(auth);
+  const [createUserWithEmailAndPassword, user, loading, error] =
+    useCreateUserWithEmailAndPassword(auth);
+
+  // const handleSignUpWithEmailPassword=async()=>{
+  //   try {
+  //     const res=await useCreateUserWithEmailAndPassword(email,password);
+  //     console.log({res});
+  //     setEmail("");
+  //     setUsername("");
+  //     setPassword("");
+  //     setConfirmPassword("");
+  //   }
+
+  //   } catch (e) {
+  //     console.error(e);
+
+  //   }
+  // };
+
+const handleSignUpWithEmailPassword = async (e) => {
+  e.preventDefault();
+
+  if (password !== confirmPassword) {
+    console.error("Passwords do not match");
+    return;
+  }
+
+   if (!email || password.length < 6) {
+     console.error("Invalid email or password length");
+     return;
+   }
+
+
+  try {
+    await createUserWithEmailAndPassword(email, password);
+    console.log( "User created successfully:", user);
+    // Optionally add username to Firestore or Realtime Database here
+    setEmail("");
+    setUsername("");
+    setPassword("");
+    setConfirmPassword("");
+  } catch (e) {
+    console.error("Error creating user:", e);
+  }
+};
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to primary-100 flex items-center justify-center p-4">
@@ -29,7 +78,9 @@ export default function SignUpPage() {
             <h1 className="text-3xl font-bold tracking-tighter">Sign Up</h1>
             <p className="text-muted-foreground">Create an account</p>
           </div>
-          <form className="space-y-4">
+
+
+          <form className="space-y-4" onSubmit={handleSignUpWithEmailPassword}>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -100,7 +151,11 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            <Button type="submit" variant="default" className="w-full">
+            <Button
+              type="submit"
+              variant="default"
+              className="w-full"
+            >
               Sign Up
             </Button>
           </form>
@@ -125,7 +180,9 @@ export default function SignUpPage() {
 
           <div className="text-center text-sm">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-primary-500 hover:text-primary-600 font-medium underline"
+            <Link
+              href="/auth/login"
+              className="text-primary-500 hover:text-primary-600 font-medium underline"
             >
               Login
             </Link>
@@ -135,3 +192,6 @@ export default function SignUpPage() {
     </div>
   );
 }
+
+
+export default SignUpPage;
