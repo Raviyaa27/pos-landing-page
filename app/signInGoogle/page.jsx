@@ -1,23 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {app,auth} from "../../config";
-import dashboard from "../dashboard/page";
-import {  signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { app, auth } from "../../config";
+import Dashboard from "../dashboard/page";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Mail } from "lucide-react";
 
-// function page() {
 const SignInPage = () => {
   const [user, setUser] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
-    console.log("Starting auth onAuthStateChanged observer");
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      console.log("Auth state changed:", user);
       if (user) {
         setUser(user);
+        router.push("/dashboard"); // Redirect to dashboard when user is logged in
       } else {
         setUser(null);
       }
@@ -27,38 +26,27 @@ const SignInPage = () => {
   }, []);
 
   const signInWithGoogle = async () => {
-    console.log("Attempting to sign in with Google");
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      console.log("Sign in successful");
-      router.push("/dashboard");
+      router.push("/dashboard"); // Redirect to dashboard after successful sign-in
     } catch (error) {
       console.error("Error signing in with Google:", error.message);
     }
   };
 
   return (
-    <div className="flex justify-center gap-8">
+    <div className="grid grid-cols-1 gap-4">
       {user ? (
-        //user is logged in, render dashboard or redirect to the dashboard
-        <dashboard />
+        <Dashboard />
       ) : (
-        //user is not logged in , render the login button
-        <button onClick={signInWithGoogle} className="p-6 flex gap-4">
-          <Image src="/google.png" width={30} height={30} alt="google" />
-          Sign up with Google
-        </button>
+        <Button onClick={signInWithGoogle} variant="outline" className="w-full">
+          <Mail className="mr-2 h-4 w-4" />
+          Google
+        </Button>
       )}
     </div>
   );
 };
 
 export default SignInPage;
-
-{
-  /* <button className="p-6 flex gap-4">
-              <Image src="/google.png" width={30} height={30} alt="google" />
-              Sign up with Google
-            </button> */
-}

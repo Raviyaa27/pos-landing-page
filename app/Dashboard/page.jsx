@@ -3,36 +3,29 @@
 import React, { useEffect, useState } from "react";
 import { getAuth, signOut, onAuthStateChanged } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import {app} from "../../config.js";
+import { app } from "../../config.js";
 
-function dashboard() {
+function Dashboard() {
   const auth = getAuth(app);
   const router = useRouter();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    console.log("Initializing onAuthStateChanged observer");
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-        console.log("Auth state changed:", user);
       if (user) {
         setUser(user);
       } else {
-        router.push("/"); //redirect to the home page
+        router.push("/"); // Redirect to login page
       }
     });
 
-    return () => {
-        console.log("Cleaning up onAuthStateChanged observer");
-      unsubscribe();
-    };
+    return () => unsubscribe();
   }, [auth, router]);
 
   const handleLogout = async () => {
-    console.log("Attempting to sign out");
     try {
       await signOut(auth);
-       console.log("Sign out successful");
-      router.push("/"); //redirect to the login page after logout
+      router.push("/"); // Redirect to login page after logout
     } catch (error) {
       console.error("Error signing out", error.message);
     }
@@ -41,7 +34,7 @@ function dashboard() {
   return (
     <div className="flex flex-col items-center justify-center h-screen">
       <h1 className="text-2xl font-bold">
-        Welcome to the Dashboard,{user ? user.displayName : "Guest"}
+        Welcome to the Dashboard, {user ? user.displayName : "Guest"}
       </h1>
       <button
         onClick={handleLogout}
@@ -53,6 +46,4 @@ function dashboard() {
   );
 }
 
-export default dashboard;
-
-
+export default Dashboard;

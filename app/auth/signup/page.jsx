@@ -7,86 +7,82 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff, Facebook, Mail } from "lucide-react";
 import Link from "next/link";
-import { useFirebaseAuth } from "../../hooks/useFirebaseAuth"
+import { useFirebaseAuth } from "../../hooks/useFirebaseAuth";
 import {
   validateEmail,
   validatePassword,
   validateUsername,
-} from "../../utils/validation"; 
-
+} from "../../utils/validation";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import { auth } from "../../../config"; 
+import { useRouter } from "next/navigation";
 
 const SignUpPage = () => {
-
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [successMessage, setSuccessMessage] = useState(""); 
-
-  // Error handling
-  const [formError, setFormError] = useState({}); 
-
-  // Firebase auth hook
+  const [successMessage, setSuccessMessage] = useState("");
+  const [formError, setFormError] = useState({});
   const { signUp, loading, error: firebaseError } = useFirebaseAuth();
+  const router = useRouter();
 
-const handleSignUpWithEmailPassword = async (e) => {
-  e.preventDefault();
-
-  // Validate inputs
-  const errors = {};
-  if (!validateEmail(email)) errors.email = "Invalid email address.";
-  if (!validateUsername(username))
-    errors.username = "Username must be at least 3 characters.";
-  if (!validatePassword(password))
-    errors.password = "Password must be at least 6 characters.";
-  if (password !== confirmPassword)
-    errors.confirmPassword = "Passwords do not match.";
-
-  if (Object.keys(errors).length > 0) {
-    setFormError(errors); // Display errors if found
-    return;
-  }
-
-  try {
-    // Attempt to sign up user
-    await signUp(email, password);
-
-    // Only if the sign-up is successful, show success message
-    console.log("User created successfully!");
-    setEmail("");
-    setUsername("");
-    setPassword("");
-    setConfirmPassword("");
-    setFormError({}); 
-
-    setSuccessMessage("User created successfully! Please log in.");
-  } catch (e) {
-    console.error(e);
-
-    // Handle specific Firebase error for email already in use
-    if (e.code === "auth/email-already-in-use") {
-      setFormError({
-        general: "The email address is already in use by another account.",
-      });
-    } else if (e.code === "auth/invalid-email") {
-      setFormError({
-        general: "The email address is not valid.",
-      });
-    } else if (e.code === "auth/weak-password") {
-      setFormError({
-        general: "The password is too weak. Please use at least 6 characters.",
-      });
-    } else {
-      // Handle other unexpected errors
-      setFormError({
-        general: e.message || "An unexpected error occurred.",
-      });
+  // Google Sign-In logic
+  const signInWithGoogle = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      router.push("/dashboard"); // Redirect to dashboard after successful sign-in
+    } catch (error) {
+      console.error("Error signing in with Google:", error.message);
     }
-  }
-};
+  };
 
+  const handleSignUpWithEmailPassword = async (e) => {
+    e.preventDefault();
+    const errors = {};
+
+    // Validate inputs
+    if (!validateEmail(email)) errors.email = "Invalid email address.";
+    if (!validateUsername(username))
+      errors.username = "Username must be at least 3 characters.";
+    if (!validatePassword(password))
+      errors.password = "Password must be at least 6 characters.";
+    if (password !== confirmPassword)
+      errors.confirmPassword = "Passwords do not match.";
+
+    if (Object.keys(errors).length > 0) {
+      setFormError(errors);
+      return;
+    }
+
+    try {
+      await signUp(email, password);
+      setEmail("");
+      setUsername("");
+      setPassword("");
+      setConfirmPassword("");
+      setFormError({});
+      setSuccessMessage("User created successfully! Please log in.");
+    } catch (e) {
+      if (e.code === "auth/email-already-in-use") {
+        setFormError({
+          general: "The email address is already in use by another account.",
+        });
+      } else if (e.code === "auth/invalid-email") {
+        setFormError({ general: "The email address is not valid." });
+      } else if (e.code === "auth/weak-password") {
+        setFormError({
+          general:
+            "The password is too weak. Please use at least 6 characters.",
+        });
+      } else {
+        setFormError({ general: e.message || "An unexpected error occurred." });
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 flex items-center justify-center p-4">
@@ -210,6 +206,7 @@ const handleSignUpWithEmailPassword = async (e) => {
               {loading ? "Signing Up..." : "Sign Up"}
             </Button>
           </form>
+
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
@@ -218,8 +215,13 @@ const handleSignUpWithEmailPassword = async (e) => {
               <span className="bg-white px-2 text-muted-foreground">Or</span>
             </div>
           </div>
+
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="w-full">
+            <Button
+              onClick={signInWithGoogle}
+              variant="outline"
+              className="w-full"
+            >
               <Mail className="mr-2 h-4 w-4" />
               Google
             </Button>
