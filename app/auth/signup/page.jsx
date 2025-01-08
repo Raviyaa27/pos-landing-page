@@ -14,7 +14,7 @@ import {
   validateUsername,
 } from "../../utils/validation";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
-import { auth } from "../../../config"; 
+import { auth } from "../../../config";
 import { useRouter } from "next/navigation";
 
 const SignUpPage = () => {
@@ -32,6 +32,11 @@ const SignUpPage = () => {
   // Google Sign-In logic
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
+
+    provider.setCustomParameters({
+      prompt: "select_account",
+    });
+
     try {
       await signInWithPopup(auth, provider);
       router.push("/dashboard"); // Redirect to dashboard after successful sign-in
